@@ -6,7 +6,7 @@ Simple readings data transformation plugin
 
 Build
 -----
-To build FogLAMP Random C++ South plugin:
+To build FogLAMP "scale" C++ filter plugin:
 
 .. code-block:: console
 
