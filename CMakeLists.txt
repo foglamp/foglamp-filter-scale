@@ -48,7 +48,7 @@ if (FOGLAMP_SRC)
 	message(STATUS "Using third-party includes " ${FOGLAMP_SRC}/C/thirdparty/Simple-Web-Server)
 	include_directories(${FOGLAMP_SRC}/C/thirdparty/Simple-Web-Server)
 else()
-        include_directories(${FOGLAMP_INCLUDE_DIRS}/Simple-Web-Server)
+	include_directories(${FOGLAMP_INCLUDE_DIRS}/Simple-Web-Server)
 endif()
 
 # Add FogLAMP lib path
