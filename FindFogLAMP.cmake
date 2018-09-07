@@ -78,7 +78,7 @@ else()
 	unset(_FIND_INCLUDES CACHE)
 
 	if (NOT FOGLAMP_INCLUDE_DIRS)
-		message(SEND_ERROR "Needed FogLAMP header files not found in path ${FOGLAMP_INCLUDE_DIRS}")
+		message(SEND_ERROR "Needed FogLAMP header files not found in path ${FOGLAMP_INCLUDE}")
 		return()
 	endif()
 endif()
