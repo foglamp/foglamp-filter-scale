@@ -56,10 +56,11 @@ link_directories(${FOGLAMP_LIB_DIRS})
 
 # Create shared library
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
+
 # Add FogLAMP library names
 target_link_libraries(${PROJECT_NAME} ${NEEDED_FOGLAMP_LIBS})
 # Add additional libraries
-target_link_libraries(${PROJECT_NAME} ${WIRING_PI_LIBS})
+
 # Set the build version 
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
 
