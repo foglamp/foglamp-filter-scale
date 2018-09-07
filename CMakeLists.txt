@@ -43,11 +43,12 @@ include_directories(include)
 # Add FogLAMP include dir(s)
 include_directories(${FOGLAMP_INCLUDE_DIRS})
 
-# Add other include paths
+# Add other include paths this plugin needs
 if (FOGLAMP_SRC)
-	message(STATUS "Using third-party includes " ${FOGLAMP_SRC}/C/thirdparty)
-	include_directories(${FOGLAMP_SRC}/C/thirdparty/rapidjson/include)
+	message(STATUS "Using third-party includes " ${FOGLAMP_SRC}/C/thirdparty/Simple-Web-Server)
 	include_directories(${FOGLAMP_SRC}/C/thirdparty/Simple-Web-Server)
+else()
+        include_directories(${FOGLAMP_INCLUDE_DIRS}/Simple-Web-Server)
 endif()
 
 # Add FogLAMP lib path
