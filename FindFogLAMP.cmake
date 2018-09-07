@@ -44,6 +44,8 @@ if (FOGLAMP_SRC)
 		get_filename_component(_ITEM_PATH ${_ITEM} DIRECTORY)
 		list(APPEND FOGLAMP_INCLUDE_DIRS ${_ITEM_PATH})
 	endforeach()
+	# Add rapidjson header files
+	list(APPEND FOGLAMP_INCLUDE_DIRS "${FOGLAMP_SRC}/C/thirdparty/rapidjson/include")
 	unset(INCLUDE_LIST CACHE)
 
 	list(REMOVE_DUPLICATES FOGLAMP_INCLUDE_DIRS)
