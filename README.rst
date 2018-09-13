@@ -13,6 +13,7 @@ To build FogLAMP "scale" C++ filter plugin:
   $ mkdir build
   $ cd build
   $ cmake ..
+  $ make
 
 - By default the FogLAMP develop package header files and libraries
   are expected to be located in /usr/include/foglamp and /usr/lib/foglamp
@@ -60,6 +61,6 @@ Examples:
   $ cmake -DFOGLAMP_LIB=/home/dev/package/lib ..
 - set FOGLAMP_INSTALL
 
-  $ cmake -DFOGLAMP_INSTALL=/home/source/develop/FogLAMP
+  $ cmake -DFOGLAMP_INSTALL=/home/source/develop/FogLAMP ..
 
-  $ cmake -DFOGLAMP_INSTALL=/usr/local/foglamp
+  $ cmake -DFOGLAMP_INSTALL=/usr/local/foglamp ..
