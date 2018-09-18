@@ -77,6 +77,11 @@ else
   exit 1
 fi
 
+# If the architecture has not been defined, then the script is complete
+if [[ "$architecture" == "none" ]]; then
+  exit 0
+fi
+
 plugin_version=`cat ${GIT_ROOT}/plugin.cpp | grep 'version' | head -1 | tr -d ' ' | awk -F',' '{print $1}' | sed -e 's/\"//g'`
 foglamp_version=`cat ${GIT_ROOT}/foglamp.version | tr -d ' ' | grep 'foglamp_version' | head -1 | sed -e 's/\(.*\)version\(.*\)/\2/g'`
 BUILD_ROOT="${GIT_ROOT}/packages/build"
