@@ -97,9 +97,9 @@ Finally, run the ``make_deb`` command:
 .. code-block:: console
 
    $ ./make_deb
-   The package root directory is   : /home/ubuntu/source/foglamp-filter-scale/foglamp-filter-scale
+   The package root directory is   : /home/ubuntu/source/foglamp-filter-scale
    The FogLAMP required version    : >=1.4
-   The package will be built in    : /home/ubuntu/source/foglamp-filter-scale/foglamp-filter-scale/packages/build
+   The package will be built in    : /home/ubuntu/source/foglamp-filter-scale/packages/build
    The architecture is set as      : x86_64
    The package name is             : foglamp-filter-scale-1.0.0-x86_64
 
@@ -113,4 +113,5 @@ Cleaning the Package Folder
 ===========================
 
 Use the ``clean`` option to remove all the old packages and the files used to make the package.
+
 Use the ``cleanall`` option to remove all the packages and the files used to make the package.
