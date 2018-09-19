@@ -24,6 +24,7 @@ set -e
 architecture="none"
 plugin_type="filter"
 plugin_name="scale"
+plugin_install_dirname=${plugin_name}
 usage="$(basename "$0") {x86|arm} [help|clean|cleanall]
 This script is used to create the Debian package of FoglAMP C++ '${plugin_name}' ${plugin_type} plugin
 Arguments:
@@ -83,7 +84,7 @@ if [[ "$architecture" == "none" ]]; then
 fi
 
 # Get plugin version from plugin.cpp, grep comment: // Version
-plugin_version=`cat ${GIT_ROOT}/plugin.cpp | grep 'Version' | head -1 | tr -d ' ' | awk -F',' '{print $1}' | sed -e 's/\"//g'`
+plugin_version=`cat ${GIT_ROOT}/plugin.cpp | grep 'Version' | head -1 | tr -d ' ' | awk -F',' '{print $1}' | sed -e 's/\"//g' | sed -e 's/[[:space:]]\+//g'`
 # Get FogLAMP version dependency from foglamp_version file
 foglamp_version=`cat ${GIT_ROOT}/foglamp.version | tr -d ' ' | grep 'foglamp_version' | head -1 | sed -e 's/\(.*\)version\(.*\)/\2/g'`
 BUILD_ROOT="${GIT_ROOT}/packages/build"
@@ -136,8 +137,8 @@ sed -i "s/Depends: foglamp/Depends: foglamp (${foglamp_version})/g" DEBIAN/contr
 
 mkdir -p usr/local/foglamp
 cd usr/local/foglamp
-mkdir -p "plugins/${plugin_type}/${plugin_name}"
-cp -R --preserve=links ${GIT_ROOT}/build/lib*.so* "plugins/${plugin_type}/${plugin_name}"
+mkdir -p "plugins/${plugin_type}/${plugin_install_dirname}"
+cp -R --preserve=links ${GIT_ROOT}/build/lib*.so* "plugins/${plugin_type}/${plugin_install_dirname}"
 echo "Done."
 
 # Build the package
