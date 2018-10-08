@@ -20,7 +20,7 @@
 #include <reading_set.h>
 
 #define FILTER_NAME "scale"
-#define SCALE_FACTOR "100"
+#define SCALE_FACTOR "100.0"
 #define DEFAULT_CONFIG "{\"plugin\" : { \"description\" : \"Scale filter plugin\", " \
                        		"\"type\" : \"string\", " \
 				"\"default\" : \"" FILTER_NAME "\" }, " \
@@ -29,7 +29,7 @@
 				"\"type\": \"boolean\", " \
 				"\"default\": \"false\" }, " \
 			"\"factor\" : {\"description\" : \"Scale factor for a reading value.\", " \
-				"\"type\": \"integer\", " \
+				"\"type\": \"float\", " \
 				"\"default\": \"" SCALE_FACTOR "\"} }"
 using namespace std;
 
