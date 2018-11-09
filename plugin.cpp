@@ -30,7 +30,10 @@
 				"\"default\": \"false\" }, " \
 			"\"factor\" : {\"description\" : \"Scale factor for a reading value.\", " \
 				"\"type\": \"float\", " \
-				"\"default\": \"" SCALE_FACTOR "\"} }"
+				"\"default\": \"" SCALE_FACTOR "\"}, " \
+			"\"offset\" : {\"description\" : \"A constant offset to add to every value.\", " \
+				"\"type\": \"float\", " \
+				"\"default\": \"0.0\"} }"
 using namespace std;
 
 /**
@@ -113,33 +116,51 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 	{
 		scaleFactor = strtod(SCALE_FACTOR, NULL);
 	}
+	double offset = 0;0;
+	if (filter->getConfig().itemExists("offset"))
+	{
+		offset = strtod(filter->getConfig().getValue("offset").c_str(), NULL);
+	}
 
 	// 1- We might need to transform the inout readings set: example
 	// ReadingSet* newReadings = scale_readings(scaleFactor, readingSet);
 
 	// Just get all the readings in the readingset
 	const vector<Reading *>& readings = ((ReadingSet *)readingSet)->getAllReadings();
-	// Iterate the readings
+	// Iterate over the readings
 	for (vector<Reading *>::const_iterator elem = readings.begin();
 						      elem != readings.end();
 						      ++elem)
 	{
 		// Get a reading DataPoint
 		const vector<Datapoint *>& dataPoints = (*elem)->getReadingData();
-		// Iterate the datapoints
+		// Iterate over the datapoints
 		for (vector<Datapoint *>::const_iterator it = dataPoints.begin(); it != dataPoints.end(); ++it)
 		{
 			// Get the reference to a DataPointValue
 			DatapointValue& value = (*it)->getData();
 
-			// If INTEGER or FLOAT do the change
+			/*
+			 * Deal with the T_INTEGER and T_FLOAT types.
+			 * Try to preserve the typoe if possible but
+			 * of a flaoting point scale or offset is applied
+			 * then T_INTEGER values will turn into T_FLOAT.
+			 */
 			if (value.getType() == DatapointValue::T_INTEGER)
 			{
-				value.setValue((long)(value.toInt() * scaleFactor));
+				double newValue = value.toInt() * scaleFactor + offset;
+				if (newValue == floor(newValue))
+				{
+					value.setValue(newValue);
+				}
+				else
+				{
+					value.setValue((long)newValue);
+				}
 			}
 			else if (value.getType() == DatapointValue::T_FLOAT)
 			{
-				value.setValue(value.toDouble() * scaleFactor);
+				value.setValue(value.toDouble() * scaleFactor + offset);
 			}
 			else
 			{
