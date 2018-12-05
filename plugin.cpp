@@ -142,8 +142,8 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 
 			/*
 			 * Deal with the T_INTEGER and T_FLOAT types.
-			 * Try to preserve the typoe if possible but
-			 * of a flaoting point scale or offset is applied
+			 * Try to preserve the type if possible but
+			 * if a flaoting point scale or offset is applied
 			 * then T_INTEGER values will turn into T_FLOAT.
 			 */
 			if (value.getType() == DatapointValue::T_INTEGER)
