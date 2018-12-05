@@ -116,7 +116,7 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 	{
 		scaleFactor = strtod(SCALE_FACTOR, NULL);
 	}
-	double offset = 0;0;
+	double offset = 0.0;
 	if (filter->getConfig().itemExists("offset"))
 	{
 		offset = strtod(filter->getConfig().getValue("offset").c_str(), NULL);
