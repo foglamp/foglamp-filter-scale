@@ -18,6 +18,7 @@
 #include <filter_plugin.h>
 #include <filter.h>
 #include <reading_set.h>
+#include <regex>
 
 #define FILTER_NAME "scale"
 #define SCALE_FACTOR "100.0"
@@ -33,7 +34,10 @@
 				"\"default\": \"" SCALE_FACTOR "\"}, " \
 			"\"offset\" : {\"description\" : \"A constant offset to add to every value.\", " \
 				"\"type\": \"float\", " \
-				"\"default\": \"0.0\"} }"
+				"\"default\": \"0.0\"}, " \
+			"\"match\" : {\"description\" : \"An optional regular expression to match in the asset name.\", " \
+				"\"type\": \"string\", " \
+				"\"default\": \"\"} }"
 using namespace std;
 
 /**
@@ -121,6 +125,13 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 	{
 		offset = strtod(filter->getConfig().getValue("offset").c_str(), NULL);
 	}
+	string match;
+	regex  *re = 0;
+	if (filter->getConfig().itemExists("match"))
+	{
+		match = filter->getConfig().getValue("match");
+		re = new regex(match);
+	}
 
 	// 1- We might need to transform the inout readings set: example
 	// ReadingSet* newReadings = scale_readings(scaleFactor, readingSet);
@@ -132,6 +143,14 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 						      elem != readings.end();
 						      ++elem)
 	{
+		if (!match.empty())
+		{
+			string asset = (*elem)->getAssetName();
+			if (! regex_match(asset, *re))
+			{
+				continue;
+			}
+		}
 		// Get a reading DataPoint
 		const vector<Datapoint *>& dataPoints = (*elem)->getReadingData();
 		// Iterate over the datapoints
