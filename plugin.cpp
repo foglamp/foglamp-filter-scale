@@ -24,20 +24,24 @@
 #define SCALE_FACTOR "100.0"
 #define DEFAULT_CONFIG "{\"plugin\" : { \"description\" : \"Scale filter plugin\", " \
                        		"\"type\" : \"string\", " \
-				"\"default\" : \"" FILTER_NAME "\" }, " \
+				"\"default\" : \"" FILTER_NAME "\", \"readonly\": \"true\" }, " \
 			 "\"enable\": {\"description\": \"A switch that can be used to enable or disable execution of " \
 					 "the scale filter.\", " \
 				"\"type\": \"boolean\", " \
+				"\"displayName\": \"Enable\", " \
 				"\"default\": \"false\" }, " \
 			"\"factor\" : {\"description\" : \"Scale factor for a reading value.\", " \
 				"\"type\": \"float\", " \
-				"\"default\": \"" SCALE_FACTOR "\"}, " \
+				"\"default\": \"" SCALE_FACTOR "\", " \
+				"\"order\" : \"1\", \"displayName\": \"Scale Factor\"}, " \
 			"\"offset\" : {\"description\" : \"A constant offset to add to every value.\", " \
 				"\"type\": \"float\", " \
-				"\"default\": \"0.0\"}, " \
+				"\"default\": \"0.0\", " \
+				"\"order\": \"2\", \"displayName\": \"Constant Offset\"}, " \
 			"\"match\" : {\"description\" : \"An optional regular expression to match in the asset name.\", " \
 				"\"type\": \"string\", " \
-				"\"default\": \"\"} }"
+				"\"default\": \"\", " \
+				"\"order\": \"3\", \"displayName\": \"Asset filter\"} }"
 using namespace std;
 
 /**
