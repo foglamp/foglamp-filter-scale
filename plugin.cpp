@@ -198,6 +198,18 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 }
 
 /**
+ * Plugin reconfiguration method
+ *
+ * @param handle	The plugin handle
+ * @param newConfig	The updated configuration
+ */
+void plugin_reconfigure(PLUGIN_HANDLE *handle, const std::string& newConfig)
+{
+	FogLampFilter* data = (FogLampFilter *)handle;
+	data->setConfig(newConfig);
+}
+
+/**
  * Call the shutdown method in the plugin
  */
 void plugin_shutdown(PLUGIN_HANDLE *handle)
