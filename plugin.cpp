@@ -63,7 +63,7 @@ static PLUGIN_INFORMATION info = {
 
 typedef struct
 {
-	FogLampFilter *handle;
+	FogLampFilter	*handle;
 	std::string	configCatName;
 } FILTER_INFO;
 
@@ -232,6 +232,7 @@ void plugin_shutdown(PLUGIN_HANDLE *handle)
 {
 	FILTER_INFO *info = (FILTER_INFO *) handle;
 	delete info->handle;
+	delete info;
 }
 
 // End of extern "C"
