@@ -19,6 +19,7 @@
 #include <filter.h>
 #include <reading_set.h>
 #include <regex>
+#include <version.h>
 
 #define FILTER_NAME "scale"
 #define SCALE_FACTOR "100.0"
@@ -54,7 +55,7 @@ extern "C" {
  */
 static PLUGIN_INFORMATION info = {
         FILTER_NAME,              // Name
-        "1.0.0",                  // Version
+        VERSION,                  // Version
         0,                        // Flags
         PLUGIN_TYPE_FILTER,       // Type
         "1.0.0",                  // Interface version
