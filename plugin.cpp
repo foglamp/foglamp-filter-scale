@@ -18,19 +18,31 @@
 #include <filter_plugin.h>
 #include <filter.h>
 #include <reading_set.h>
+#include <regex>
+#include <version.h>
 
 #define FILTER_NAME "scale"
-#define SCALE_FACTOR "100"
+#define SCALE_FACTOR "100.0"
 #define DEFAULT_CONFIG "{\"plugin\" : { \"description\" : \"Scale filter plugin\", " \
                        		"\"type\" : \"string\", " \
-				"\"default\" : \"" FILTER_NAME "\" }, " \
+				"\"default\" : \"" FILTER_NAME "\", \"readonly\": \"true\" }, " \
 			 "\"enable\": {\"description\": \"A switch that can be used to enable or disable execution of " \
 					 "the scale filter.\", " \
 				"\"type\": \"boolean\", " \
+				"\"displayName\": \"Enabled\", " \
 				"\"default\": \"false\" }, " \
 			"\"factor\" : {\"description\" : \"Scale factor for a reading value.\", " \
-				"\"type\": \"integer\", " \
-				"\"default\": \"" SCALE_FACTOR "\"} }"
+				"\"type\": \"float\", " \
+				"\"default\": \"" SCALE_FACTOR "\", " \
+				"\"order\" : \"1\", \"displayName\": \"Scale Factor\"}, " \
+			"\"offset\" : {\"description\" : \"A constant offset to add to every value.\", " \
+				"\"type\": \"float\", " \
+				"\"default\": \"0.0\", " \
+				"\"order\": \"2\", \"displayName\": \"Constant Offset\"}, " \
+			"\"match\" : {\"description\" : \"An optional regular expression to match in the asset name.\", " \
+				"\"type\": \"string\", " \
+				"\"default\": \"\", " \
+				"\"order\": \"3\", \"displayName\": \"Asset filter\"} }"
 using namespace std;
 
 /**
@@ -43,12 +55,18 @@ extern "C" {
  */
 static PLUGIN_INFORMATION info = {
         FILTER_NAME,              // Name
-        "1.0.0",                  // Version
+        VERSION,                  // Version
         0,                        // Flags
         PLUGIN_TYPE_FILTER,       // Type
         "1.0.0",                  // Interface version
 	DEFAULT_CONFIG	          // Default plugin configuration
 };
+
+typedef struct
+{
+	FogLampFilter	*handle;
+	std::string	configCatName;
+} FILTER_INFO;
 
 /**
  * Return the information about this plugin
@@ -78,12 +96,14 @@ PLUGIN_HANDLE plugin_init(ConfigCategory* config,
 			  OUTPUT_HANDLE *outHandle,
 			  OUTPUT_STREAM output)
 {
-	FogLampFilter* handle = new FogLampFilter(FILTER_NAME,
-						  *config,
-						  outHandle,
-						  output);
+	FILTER_INFO *info = new FILTER_INFO;
+	info->handle = new FogLampFilter(FILTER_NAME,
+					*config,
+					outHandle,
+					output);
+	info->configCatName = config->getName();
 
-	return (PLUGIN_HANDLE)handle;
+	return (PLUGIN_HANDLE)info;
 }
 
 /**
@@ -95,7 +115,9 @@ PLUGIN_HANDLE plugin_init(ConfigCategory* config,
 void plugin_ingest(PLUGIN_HANDLE *handle,
 		   READINGSET *readingSet)
 {
-	FogLampFilter* filter = (FogLampFilter *)handle;
+	FILTER_INFO *info = (FILTER_INFO *) handle;
+	FogLampFilter* filter = info->handle;
+	
 	if (!filter->isEnabled())
 	{
 		// Current filter is not active: just pass the readings set
@@ -113,33 +135,67 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 	{
 		scaleFactor = strtod(SCALE_FACTOR, NULL);
 	}
+	double offset = 0.0;
+	if (filter->getConfig().itemExists("offset"))
+	{
+		offset = strtod(filter->getConfig().getValue("offset").c_str(), NULL);
+	}
+	string match;
+	regex  *re = 0;
+	if (filter->getConfig().itemExists("match"))
+	{
+		match = filter->getConfig().getValue("match");
+		re = new regex(match);
+	}
 
 	// 1- We might need to transform the inout readings set: example
 	// ReadingSet* newReadings = scale_readings(scaleFactor, readingSet);
 
 	// Just get all the readings in the readingset
 	const vector<Reading *>& readings = ((ReadingSet *)readingSet)->getAllReadings();
-	// Iterate the readings
+	// Iterate over the readings
 	for (vector<Reading *>::const_iterator elem = readings.begin();
 						      elem != readings.end();
 						      ++elem)
 	{
+		AssetTracker::getAssetTracker()->addAssetTrackingTuple(info->configCatName, (*elem)->getAssetName(), string("Filter"));
+		if (!match.empty())
+		{
+			string asset = (*elem)->getAssetName();
+			if (! regex_match(asset, *re))
+			{
+				continue;
+			}
+		}
 		// Get a reading DataPoint
 		const vector<Datapoint *>& dataPoints = (*elem)->getReadingData();
-		// Iterate the datapoints
+		// Iterate over the datapoints
 		for (vector<Datapoint *>::const_iterator it = dataPoints.begin(); it != dataPoints.end(); ++it)
 		{
 			// Get the reference to a DataPointValue
 			DatapointValue& value = (*it)->getData();
 
-			// If INTEGER or FLOAT do the change
+			/*
+			 * Deal with the T_INTEGER and T_FLOAT types.
+			 * Try to preserve the type if possible but
+			 * if a flaoting point scale or offset is applied
+			 * then T_INTEGER values will turn into T_FLOAT.
+			 */
 			if (value.getType() == DatapointValue::T_INTEGER)
 			{
-				value.setValue((long)(value.toInt() * scaleFactor));
+				double newValue = value.toInt() * scaleFactor + offset;
+				if (newValue == floor(newValue))
+				{
+					value.setValue(newValue);
+				}
+				else
+				{
+					value.setValue((long)newValue);
+				}
 			}
 			else if (value.getType() == DatapointValue::T_FLOAT)
 			{
-				value.setValue(value.toDouble() * scaleFactor);
+				value.setValue(value.toDouble() * scaleFactor + offset);
 			}
 			else
 			{
@@ -158,12 +214,26 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 }
 
 /**
+ * Plugin reconfiguration method
+ *
+ * @param handle	The plugin handle
+ * @param newConfig	The updated configuration
+ */
+void plugin_reconfigure(PLUGIN_HANDLE *handle, const std::string& newConfig)
+{
+	FILTER_INFO *info = (FILTER_INFO *)handle;
+	FogLampFilter* data = info->handle;
+	data->setConfig(newConfig);
+}
+
+/**
  * Call the shutdown method in the plugin
  */
 void plugin_shutdown(PLUGIN_HANDLE *handle)
 {
-	FogLampFilter* data = (FogLampFilter *)handle;
-	delete data;
+	FILTER_INFO *info = (FILTER_INFO *) handle;
+	delete info->handle;
+	delete info;
 }
 
 // End of extern "C"
