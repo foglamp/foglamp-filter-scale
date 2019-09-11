@@ -1,5 +1,5 @@
 /*
- * FogLAMP "scale" filter plugin.
+ * Fledge "scale" filter plugin.
  *
  * Copyright (c) 2018 Dianomic Systems
  *
@@ -64,7 +64,7 @@ static PLUGIN_INFORMATION info = {
 
 typedef struct
 {
-	FogLampFilter	*handle;
+	FledgeFilter	*handle;
 	std::string	configCatName;
 } FILTER_INFO;
 
@@ -97,7 +97,7 @@ PLUGIN_HANDLE plugin_init(ConfigCategory* config,
 			  OUTPUT_STREAM output)
 {
 	FILTER_INFO *info = new FILTER_INFO;
-	info->handle = new FogLampFilter(FILTER_NAME,
+	info->handle = new FledgeFilter(FILTER_NAME,
 					*config,
 					outHandle,
 					output);
@@ -116,7 +116,7 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 		   READINGSET *readingSet)
 {
 	FILTER_INFO *info = (FILTER_INFO *) handle;
-	FogLampFilter* filter = info->handle;
+	FledgeFilter* filter = info->handle;
 	
 	if (!filter->isEnabled())
 	{
@@ -222,7 +222,7 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 void plugin_reconfigure(PLUGIN_HANDLE *handle, const std::string& newConfig)
 {
 	FILTER_INFO *info = (FILTER_INFO *)handle;
-	FogLampFilter* data = info->handle;
+	FledgeFilter* data = info->handle;
 	data->setConfig(newConfig);
 }
 
